@@ -20,7 +20,7 @@ SolarCarouselKit은 별도의 복잡한 레이아웃 계산 없이 `CarouselPres
 
 Xcode의 `File > Add Package Dependencies...` 메뉴에서 아래 URL을 입력하여 설치할 수 있습니다.
 ```text
-https://github.com/your-repo/SolarCarouselKit.git
+https://github.com/iAmSomething/SolarCarouselKit.git
 ```
 
 ---
