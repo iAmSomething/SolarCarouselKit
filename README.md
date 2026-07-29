@@ -31,19 +31,33 @@ https://github.com/iAmSomething/SolarCarouselKit.git
 ```swift
 import SwiftUI
 import SolarCarouselKit
+// import Kingfisher // KFImage 등을 자유롭게 사용할 수 있습니다.
+
+// 1. 모델은 Identifiable을 준수해야 합니다.
+struct Banner: Identifiable, Sendable {
+    let id = UUID()
+    let imageUrl: String
+}
 
 struct ContentView: View {
-    let images = ["img1", "img2", "img3"]
+    let banners = [
+        Banner(imageUrl: "https://.../img1.png"),
+        Banner(imageUrl: "https://.../img2.png")
+    ]
 
     var body: some View {
         SolarCarouselView(
             style: .heroBanner(peekAmount: 30),
-            items: images
-        ) { imageName in 
-            Image(imageName)
-                .resizable()
-                .scaledToFill()
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+            items: banners
+        ) { banner in 
+            // 2. 클로저 내부는 @ViewBuilder이므로 어떠한 View 타입이든 반환할 수 있습니다.
+            // Image, AsyncImage, KFImage 등 제약이 없습니다!
+            AsyncImage(url: URL(string: banner.imageUrl)) { image in
+                image.resizable().scaledToFill()
+            } placeholder: {
+                Color.gray
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 16))
         }
         .frame(height: 250)
     }
