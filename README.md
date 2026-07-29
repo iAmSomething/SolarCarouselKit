@@ -121,6 +121,69 @@ SolarCarouselView(
 
 ---
 
+## 🔥 특수 케이스 핸들링 (Advanced Usage)
+
+실무에서 자주 마주치는 복잡하고 까다로운 기획 요구사항들도 `SolarCarouselKit`의 순수 SwiftUI 기반 아키텍처 덕분에 손쉽게 해결할 수 있습니다.
+
+### 1. 복합 터치 이벤트 제어 (카드 터치 vs 내부 버튼 터치)
+"카드를 누르면 상세 페이지로 가고, 카드 우측 상단의 하트 버튼을 누르면 찜하기가 되어야 해요."
+SolarCarouselKit은 터치 이벤트를 강제로 가로채지 않으므로, SwiftUI의 네이티브 제스처 계층이 완벽히 유지됩니다.
+
+```swift
+SolarCarouselView(style: .cardStack(), items: products) { product in
+    ZStack(alignment: .topTrailing) {
+        // 1. 카드 본체 (상세 페이지 이동)
+        Image(product.imageUrl)
+            .resizable()
+            .onTapGesture {
+                print("\(product.name) 상세 페이지로 이동")
+            }
+        
+        // 2. 카드 내부 독립적인 버튼 (찜하기)
+        Button {
+            print("찜하기 추가됨!")
+        } label: {
+            Image(systemName: "heart.fill")
+                .padding()
+                .background(.ultraThinMaterial, in: Circle())
+        }
+        .padding(12)
+    }
+}
+```
+
+### 2. 동적 데이터 추가 (Pagination / 무한 스크롤 연동)
+"사용자가 마지막 카드에 도달하면 서버에서 다음 페이지 데이터를 불러와서 캐러셀에 추가해 주세요."
+`items` 배열은 SwiftUI 상태(State)와 완벽히 연동되므로, 배열에 새 데이터를 `append` 하기만 하면 부드러운 애니메이션과 함께 캐러셀이 확장됩니다.
+
+```swift
+SolarCarouselView(style: .heroBanner(), items: viewModel.items) { item in
+    CardView(item: item)
+        .onAppear {
+            // 마지막 아이템이 화면에 나타날 때 다음 데이터 Fetch
+            if item.id == viewModel.items.last?.id {
+                viewModel.fetchNextPage()
+            }
+        }
+}
+```
+
+### 3. 네비게이션 및 시트(Sheet) 띄우기 연동
+각 카드 내부에서 `NavigationLink`를 바로 감싸거나, `.sheet` 모디파이어를 연결해도 상위 스크롤 뷰와 충돌 없이 완벽하게 동작합니다.
+
+```swift
+SolarCarouselView(style: .coverFlow(), items: albums) { album in
+    NavigationLink(destination: AlbumDetailView(album: album)) {
+        Image(album.coverImage)
+            .resizable()
+            // ...
+    }
+    .buttonStyle(.plain) // 네비게이션 터치 애니메이션 방지
+}
+```
+
+---
+
 ## ⚙️ 글로벌 환경 설정 (Global Configuration)
 
 앱 실행 초기(`AppDelegate` 또는 `@main`)에 킷의 전역 디자인 시스템을 설정할 수 있습니다.
