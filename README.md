@@ -64,7 +64,9 @@ struct ContentView: View {
 }
 ```
 
-**UIKit 환경:**
+**UIKit 환경 (Modern Closure-based Delegate):**
+UIKit 환경에서는 기존의 무거운 `Delegate` 프로토콜 패턴 대신, Swift의 모던한 클로저(Closure) 방식을 사용하여 이벤트를 처리합니다.
+
 ```swift
 import UIKit
 import SolarCarouselKit
@@ -72,8 +74,28 @@ import SolarCarouselKit
 class MyViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // 1. 초기화 및 스타일 지정
         let carousel = SolarCarouselViewController(style: .cardStack())
-        // Configure Data Source & Add to View...
+        
+        // 2. 콜렉션 뷰 셀 등록 및 DataSource 연결
+        carousel.register(MyCustomCell.self, forCellWithReuseIdentifier: "cell")
+        carousel.setDataSource(self) 
+        
+        // 3. Delegate 함수들을 대체하는 모던 클로저 이벤트
+        carousel.onPageChange = { [weak self] pageIndex in
+            print("페이지가 \(pageIndex)로 변경되었습니다.")
+        }
+        
+        carousel.onItemTap = { [weak self] tappedIndex in
+            print("\(tappedIndex)번째 카드가 터치되었습니다!")
+            // 예: self?.navigationController?.pushViewController(...)
+        }
+        
+        // 4. ViewController 뷰 계층에 추가
+        addChild(carousel)
+        view.addSubview(carousel.view)
+        carousel.didMove(toParent: self)
     }
 }
 ```
